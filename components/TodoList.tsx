@@ -1,45 +1,48 @@
-import { Todo } from '../app/types';
-import TodoItem from './TodoItem';
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
+import TodoInput from './TodoInput';
+import Todo from './Todo';
 
-
-interface TodoListProps {
-    todos: Todo[];
-    toggleTodo: (id: number) => void;
-    startEditing: (id: number) => void;
-    deleteTodo: (id: number) => void;
-    editingId: number | null;
-    editingText: string;
-    setEditingText: React.Dispatch<React.SetStateAction<string>>;
-    finishEditing: () => void;
+interface TodoItem {
+    id: number;
+    text: string;
+    completed: boolean;
 }
 
-const TodoList: React.FC<TodoListProps> = ({
-    todos,
-    toggleTodo,
-    startEditing,
-    deleteTodo,
-    editingId,
-    editingText,
-    setEditingText,
-    finishEditing,
-}) => {
+const TodoList: React.FC = () => {
+    const [todos, setTodos] = useState<TodoItem[]>([]);
+
+    const addTodo = (text: string) => {
+        const newTodo: TodoItem = { id: Date.now(), text, completed: false };
+        setTodos([...todos, newTodo]);
+    };
+
+    const toggleTodo = (id: number) => {
+        setTodos(
+            todos.map((todo) =>
+                todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            )
+        );
+    };
+
+    const deleteTodo = (id: number) => {
+        setTodos(todos.filter((todo) => todo.id !== id));
+    };
+
+
     return (
-        <ul>
+        <div>
+            <TodoInput onAddTodo={addTodo} />
             {todos.map((todo) => (
-                <TodoItem
+                <Todo
                     key={todo.id}
-                    todo={todo}
-                    toggleTodo={toggleTodo}
-                    startEditing={startEditing}
-                    deleteTodo={deleteTodo}
-                    editingId={editingId}
-                    editingText={editingText}
-                    setEditingText={setEditingText}
-                    finishEditing={finishEditing}
+                    text={todo.text}
+                    completed={todo.completed}
+                    onToggle={() => toggleTodo(todo.id)}
+                    onDelete={() => deleteTodo(todo.id)}
                 />
             ))}
-        </ul>
+        </div>
     );
 };
 
